@@ -14,7 +14,7 @@ const Discord = require('discord.js');
 // create a new Discord client
 const client = new Discord.Client();
 
-const env = process.env;
+
 
 var game = null;
 
@@ -26,18 +26,19 @@ client.once('ready', () => {
 	console.log('Ready!');
 });
 
-client.on("message", message => {
+client.on("message", message => { 
+	// test
 		if (message.attachments.size > 0){
 		return message.channel.send(message.attachments);
 	}
 
 	//If the message either doesn't start with the prefix or was sent by a bot, exit early.
-	if (!message.content.startsWith(env.prefix) || message.author.bot) 
+	if (!message.content.startsWith(process.env.prefix) || message.author.bot) 
 		return;
 
 	// Create an args variable that slices off the prefix entirely and then splits it into an 
 	// array by spaces. Uses regex.
-	const args = message.content.slice(env.prefix.length).split(/ +/);
+	const args = message.content.slice(process.env.prefix.length).split(/ +/);
 
 	// Create a command variable by calling args.shift(), which will take the first element in 
 	// array and return it while also removing it from the original array (so that you don't 
@@ -96,4 +97,4 @@ function createGame(args, message){
 
 
 // login to Discord with your app's token
-client.login(env.TOKEN);
+client.login(process.env.TOKEN);
