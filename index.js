@@ -27,7 +27,6 @@ client.once('ready', () => {
 });
 
 client.on("message", message => {
-	console.log(message.content);
 		if (message.attachments.size > 0){
 		return message.channel.send(message.attachments);
 	}
