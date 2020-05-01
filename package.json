@@ -1,0 +1,24 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "a discord bot with a variety of utility functions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sandra-soto/discord-bot.git"
+  },
+  "author": "sandra-soto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sandra-soto/discord-bot/issues"
+  },
+  "homepage": "https://github.com/sandra-soto/discord-bot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1"
+  }
+}
