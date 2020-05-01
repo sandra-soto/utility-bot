@@ -28,6 +28,7 @@ client.once('ready', () => {
 
 client.on("message", message => { 
 	// test
+	console.log(message.content);
 
 		if (message.attachments.size > 0){
 		return message.channel.send(message.attachments);
@@ -50,7 +51,7 @@ client.on("message", message => {
 	if(command == "henlo"){
 		console.log(message);
 		for(var i = 0; i < parseInt(args[0]); i++){
-			return message.channel.send("henlo");
+			message.channel.send("henlo");
 		}
 	}
 
