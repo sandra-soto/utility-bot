@@ -81,6 +81,24 @@ client.on("message", message => {
 
 	}
 
+	else if(command == "timer"){
+		timeleft = args[0];
+		 async function roundTimer(timeleft = 10){
+       
+      var timer = setInterval(function(){
+        if(timeleft<=0){
+        	message.channel.send("Finished!");
+          clearInterval(timer);
+        }
+        else{
+        	 message.channel.send(timeleft);
+        }
+      timeleft--;
+      },1000);
+  }
+  roundTimer(timeleft);
+	}
+
 });
 
 function createGame(args, message){
