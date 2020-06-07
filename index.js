@@ -146,7 +146,7 @@ client.on("message", message => {
     	{ name: '!t n', value: 'create a timer of n seconds' },
     	{ name: '!c n', value: 'start a countdown from n seconds' },
     	{ name: '!henlo n', value: 'bot says henlo n times' },
-    	{ name: '!pwease', value: 'lists bot functions' }
+    	{ name: '!hewp', value: 'lists bot functions' }
     ])
     
   message.channel.send(embed);
