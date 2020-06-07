@@ -48,7 +48,8 @@ client.on("message", message => {
 
 
 	if(command == "henlo"){
-		for(var i = 0; i < parseInt(args[0]); i++){
+		let henlos = args[0] != undefined ? parseInt(args[0]) : 1;
+		for(var i = 0; i < henlos; i++){
 			message.channel.send("henlo");
 		}
 	}
@@ -81,23 +82,79 @@ client.on("message", message => {
 
 	}
 
-	else if(command == "timer"){
-		timeleft = args[0];
-		 async function roundTimer(timeleft = 10){
+	else if(command == "c"){
+		let timeleft = args[0];
+		async function roundTimer(timeleft = 5){
        
-      var timer = setInterval(function(){
-        if(timeleft<=0){
-        	message.channel.send("Finished!");
-          clearInterval(timer);
-        }
-        else{
-        	 message.channel.send(timeleft);
-        }
-      timeleft--;
-      },1000);
-  }
-  roundTimer(timeleft);
+		let timer = setInterval(function(){
+	        if(timeleft<=0){
+	        	message.channel.send("Finished!");
+		        clearInterval(timer);
+		    }
+		    else{
+	        	 message.channel.send(timeleft);
+	        }
+	        timeleft--;
+		},1000);}
+
+	  roundTimer(timeleft);
 	}
+
+	else if(command == "t"){
+		let timeleft = args[0];
+
+  		let startTime, endTime;
+
+		function timeStr(dateObj) {
+			let num =  Math.round(dateObj.getHours()%12)
+			var str = num != 0 ? num : 12; 
+			str += ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
+		  return str;
+		}
+
+		function tick() {
+		 
+		  if (new Date().getTime() <= endTime.getTime()) {
+
+		  } 
+		  else {
+		    message.channel.send("Finished!");
+		    clearInterval(interval);
+		  }
+		}
+
+		function startTimer(secs = 10) {
+		  startTime = new Date();
+		  endTime = new Date(startTime.getTime() + secs * 1000);
+		  message.channel.send("Timer started on " + timeStr(startTime) + " and will end " + secs + 
+		  						" seconds from now on " + timeStr(endTime) );
+		  
+		  interval = setInterval(tick, 500);  
+		}
+
+		startTimer(timeleft);
+	}
+
+	else if(command == "hewp"){
+	
+  var embed = new Discord.MessageEmbed()
+  	.setColor('#f0bb9e')
+  	.setTitle('Utility-Bot')
+  	.setThumbnail('https://i.imgur.com/vXQXx5B.jpg')
+    .addFields([
+    	{ name: '!tictac n', value: 'start a game of tictactoe of n size' },
+    	{ name: '!t n', value: 'create a timer of n seconds' },
+    	{ name: '!c n', value: 'start a countdown from n seconds' },
+    	{ name: '!henlo n', value: 'bot says henlo n times' },
+    	{ name: '!pwease', value: 'lists bot functions' }
+    ])
+    
+  message.channel.send(embed);
+
+		
+	}
+
+
 
 });
 
