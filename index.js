@@ -3,6 +3,7 @@ var app = express();
 var server = require('http').createServer(app);
 var port = process.env.PORT || 5000;
 const tictactoe = require("./tictactoe");
+const riddleDB = require('./database');
 //var router = express.Router()
 
 // require dotenv to add secret variables
@@ -14,7 +15,19 @@ const Discord = require('discord.js');
 // create a new Discord client
 const client = new Discord.Client();
 
+const embed =  {
+  	color: '#f0bb9e',
+  	title: 'Utility-Bot'
+  }
 
+const failure_embed = {
+	color: '#f0bb9e',
+  	title: 'Utility-Bot',
+  	fields: [
+			   { name: "failure:", value: "could not complete request"}
+			    	]
+
+}
 
 var game = null;
 
@@ -28,10 +41,10 @@ client.once('ready', () => {
 
 client.on("message", message => { 
 
-
-		if (message.attachments.size > 0){
-		return message.channel.send(message.attachments);
-	}
+	// console.log(message.attac)
+	// if (message.attachments.size > 0){
+	// 	return message.channel.send(message.attachments);
+	// }
 
 	//If the message either doesn't start with the prefix or was sent by a bot, exit early.
 	if (!message.content.startsWith(process.env.PREFIX) || message.author.bot) 
@@ -82,22 +95,18 @@ client.on("message", message => {
 
 	}
 
-	else if(command == "c"){
-		let timeleft = args[0];
-		async function roundTimer(timeleft = 5){
-       
-		let timer = setInterval(function(){
-	        if(timeleft<=0){
-	        	message.channel.send("Finished!");
-		        clearInterval(timer);
-		    }
-		    else{
-	        	 message.channel.send(timeleft);
-	        }
-	        timeleft--;
-		},1000);}
-
-	  roundTimer(timeleft);
+	else if(command == "rmt"){
+		let num_riddles = args[0] != undefined ? args[0] : 1;
+		    const result = riddleDB.getRiddle(parseInt(num_riddles))
+		        .then(results => {
+		        	console.log(results);
+		        	console.log(results[0]);
+		          message.channel.send(results[0]['document']['riddle'])
+		         
+		     })
+		     .catch(err => {
+		       console.error(err)
+		     });
 	}
 
 	else if(command == "t"){
@@ -105,12 +114,6 @@ client.on("message", message => {
 
   		let startTime, endTime;
 
-		function timeStr(dateObj) {
-			let num =  Math.round(dateObj.getHours()%12)
-			var str = num != 0 ? num : 12; 
-			str += ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
-		  return str;
-		}
 
 		function tick() {
 		 
@@ -126,30 +129,122 @@ client.on("message", message => {
 		function startTimer(secs = 10) {
 		  startTime = new Date();
 		  endTime = new Date(startTime.getTime() + secs * 1000);
-		  message.channel.send("Timer started on " + timeStr(startTime) + " and will end " + secs + 
-		  						" seconds from now on " + timeStr(endTime) );
+		  message.channel.send("Timer started on " + startTime.toLocaleTimeString() + " and will end " + secs + 
+		  						" seconds from now on " + endTime.toLocaleTimeString() );
 		  
 		  interval = setInterval(tick, 500);  
 		}
 
 		startTimer(timeleft);
 	}
+	else if(command == "emo"){
+
+		
+		message.attachments.forEach(function(attachment) {
+	
+			let s = attachment.name;
+			emoji_name = args[0] != undefined ? args[0] : s.substring(0, s.indexOf('.'));
+			embed.thumbnail = {url:attachment.url};
+			embed.fields = [
+			    		{ name: 'added emoji', value: emoji_name}
+			    	]
+	  		message.channel.guild.emojis.create(attachment.url, emoji_name)
+				.then( () => message.channel.send({embed:embed}))
+				.catch(() => message.channel.send({embed:failure_embed}));
+
+		})
+	}
+
+	else if(command == "emos"){
+		let counter = 0;
+		embed.fields = [];
+		message.channel.guild.emojis['cache'].forEach(function(emoji) {
+			
+			let pair = { name: emoji.name, value: "<:" + emoji.name + ":" + emoji.id +">", inline:true};
+			
+			counter++;
+			embed.fields.push(pair);
+
+			if(counter % 25 == 0){
+				message.channel.send({embed:embed});
+				embed.fields = [];
+				counter = 0;
+			}
+				
+			   
+		})
+		if(counter <= 25){
+			message.channel.send({embed:embed});
+		}
+		
+	}
+
+	else if(command == "name"){
+		
+
+		let old_name = args[0];
+		let new_name = args[1];
+		for (const [emojiID, emoji] of message.channel.guild.emojis['cache']){
+			if(emoji.name == old_name){
+							embed.fields = [
+			    		{ name: 'changed name', value: `${old_name} -> ${new_name}`}
+				]	
+				embed.thumbnail = {url:`https://cdn.discordapp.com/emojis/${emojiID}`};
+				emoji.edit({name:new_name});
+				message.channel.send({embed:embed});
+			}
+		}
+
+	}
+
+	else if(command == "del"){
+		// have to consider emojis with spaces in them
+		let del = args[0];
+		for (const [emojiID, emoji] of message.channel.guild.emojis['cache']){
+		  //console.log(emojiID, emoji);
+		  if(emoji.name == del){
+		  	embed.thumbnail = {url:`https://cdn.discordapp.com/emojis/${emojiID}`};
+			embed.fields = [
+			    		{ name: 'deleted emoji', value: emoji.name}
+			    	]
+			message.channel.send({embed:embed});
+			emoji.delete();
+		  }
+		}
+
+	}
+
+	else if(command == "trash"){
+		let amount = args[0] != undefined ? args[0] : 1;
+		message.channel.messages.fetch({ limit: amount }).then(messages => { // Fetches the messages
+		    message.channel.bulkDelete(messages 
+		)});
+	}
+
 
 	else if(command == "hewp"){
-	
-  var embed = new Discord.MessageEmbed()
-  	.setColor('#f0bb9e')
-  	.setTitle('Utility-Bot')
-  	.setThumbnail('https://i.imgur.com/vXQXx5B.jpg')
-    .addFields([
-    	{ name: '!tictac n', value: 'start a game of tictactoe of n size' },
-    	{ name: '!t n', value: 'create a timer of n seconds' },
-    	{ name: '!c n', value: 'start a countdown from n seconds' },
-    	{ name: '!henlo n', value: 'bot says henlo n times' },
-    	{ name: '!hewp', value: 'lists bot functions' }
-    ])
-    
-  message.channel.send(embed);
+		embed.title = 'Utility-Bot'
+		embed.thumbnail = {url:'https://i.imgur.com/vXQXx5B.jpg'}
+	  	embed.footer = {'text': 'tip: most commands can be run without an argument'};
+	    embed.fields = [
+	    	{ name: '**UB emote**', value: '————————', inline:true},
+	    	{ name: '**UB time**', value: '————————', inline:true},
+	    	{ name: '**UB misc**', value: '————————', inline:true},
+	    	{ name: '```!emo s```', value: 'create an emoji with s name' , inline:true},
+	    	{ name: '```!t n```', value: 'create a timer of n seconds', inline:true},
+	    	{ name: '```!tictac n```', value: 'start a game of tictactoe of size n', inline:true },
+	   		{ name: '```!emos```', value: 'list all emojis in the server', inline:true },
+	   		{ name: '```!c n```', value: 'start a countdown from n seconds' , inline:true},
+	    	
+	    	{ name: '```!trash n```', value: 'delete n messages (must be 1-100)' , inline:true},
+	    	{ name: '```!del s```', value: 'delete  emoji(s) of s name' , inline:true},
+	    	{ name: '```!henlo n```', value: 'bot says henlo n times' , inline:true},
+	    	{ name: '```!hewp```', value: 'list bot functions', inline:true },
+	    	{ name: '```!name a b```', value: "change emoji a's name to b" , inline:true}
+
+	    ]
+	    
+	  message.channel.send({embed:embed});
 
 		
 	}

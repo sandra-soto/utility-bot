@@ -1,5 +1,10 @@
+//const numWords = require('num-words');
+
+const numWords = {0:'zero', 1:'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six',
+					7:'seven', 8:'eight', 9:'nine'}
+
 class tictactoe {
-  constructor(size) {
+  constructor(size, player) {
     this.size = size;
     this.turn = 1;
     this.used = 0;
@@ -16,14 +21,17 @@ class tictactoe {
   	}
   }
   print_board() {
-  	let board_str = "";
+  	let board_str = ":black_large_square:";
   	for(let row = -1; row<this.size; row++){
   		for(let col = -1; col < this.size; col++){
-  			if(row == -1){
-  				if(col > -1)
-  					board_str += col + ":black_large_square:";
+  			if(row == -1 && col > -1){
+  					board_str += `:${numWords[col]}:`;
+  			}
+  			if(col == -1 && row > -1){
+  					board_str += `:${numWords[row]}:`;
   			}
   			else if(row > -1 && col > -1){
+
 	  			if(this.board[row][col]==0){
 	  				board_str += ":white_square_button:"; 
 	  			}
@@ -36,9 +44,6 @@ class tictactoe {
   			}
 
   			
-  		}
-  		if (row>-1){
-  			board_str += ":black_large_square:" + row;
   		}
   		
   		board_str += "\n";
