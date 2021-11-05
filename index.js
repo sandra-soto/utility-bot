@@ -221,6 +221,20 @@ client.on("message", message => {
 		)});
 	}
 
+	else if(command == "eval"){
+		try{
+			string = message.content.substring(5)
+			result = eval(string)
+			message.channel.send((result != null || result != undefined) ? result : "None")
+
+		}
+				
+		catch(error){
+			 console.error(error);
+		}
+
+	}
+
 
 	else if(command == "hewp"){
 		embed.title = 'Utility-Bot'
