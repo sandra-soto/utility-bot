@@ -3,7 +3,9 @@ var app = express();
 var server = require('http').createServer(app);
 var port = process.env.PORT || 5000;
 const tictactoe = require("./tictactoe");
-const riddleDB = require('./database');
+// const riddleDB = require('./database');
+const fetch = require('node-fetch')
+
 //var router = express.Router()
 
 // require dotenv to add secret variables
@@ -11,6 +13,7 @@ require('dotenv').config();
 
 // require the discord.js module
 const Discord = require('discord.js');
+const { time } = require('console');
 
 // create a new Discord client
 const client = new Discord.Client();
@@ -19,6 +22,7 @@ const embed =  {
   	color: '#f0bb9e',
   	title: 'Utility-Bot'
   }
+
 
 const failure_embed = {
 	color: '#f0bb9e',
@@ -95,19 +99,19 @@ client.on("message", message => {
 
 	}
 
-	else if(command == "rmt"){
-		let num_riddles = args[0] != undefined ? args[0] : 1;
-		    const result = riddleDB.getRiddle(parseInt(num_riddles))
-		        .then(results => {
-		        	console.log(results);
-		        	console.log(results[0]);
-		          message.channel.send(results[0]['document']['riddle'])
+	// else if(command == "rmt"){
+	// 	let num_riddles = args[0] != undefined ? args[0] : 1;
+	// 	    const result = riddleDB.getRiddle(parseInt(num_riddles))
+	// 	        .then(results => {
+	// 	        	console.log(results);
+	// 	        	console.log(results[0]);
+	// 	          message.channel.send(results[0]['document']['riddle'])
 		         
-		     })
-		     .catch(err => {
-		       console.error(err)
-		     });
-	}
+	// 	     })
+	// 	     .catch(err => {
+	// 	       console.error(err)
+	// 	     });
+	// }
 
 	else if(command == "t"){
 		let timeleft = args[0];
@@ -233,6 +237,32 @@ client.on("message", message => {
 			 console.error(error);
 		}
 
+	}
+
+	else if(command == "g") {
+
+		const googleEmbed = {
+			"type": "rich",
+			"title": `Google Search`,
+			"description": ``,
+			"color": '#f0bb9e',
+			"url": ``
+		  }
+		const params = `key=${process.env.API_KEY}&cx=${process.env.CX}&q=${args.join(" ")}&num=3`
+		const url = "https://www.googleapis.com/customsearch/v1?" + params
+		fetch(url)
+  			.then((response) => response.json())
+  			.then((data) => {
+				for (const item of data.items) {
+					googleEmbed.title = `${item.title}`
+					googleEmbed.thumbnail = {url:'https://i.imgur.com/vXQXx5B.jpg'}
+					googleEmbed.description = ` ${item.snippet}`
+					googleEmbed.url = item.link
+					
+				  message.channel.send({embed:googleEmbed});
+				}
+				
+			});
 	}
 
 
